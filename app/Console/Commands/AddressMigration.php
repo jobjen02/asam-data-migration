@@ -26,6 +26,7 @@ class AddressMigration extends Command
      *
      * @return int
      */
+
     public function handle()
     {
         $oldAddresses = DB::table('CompanyAddresses')->get();
@@ -33,13 +34,19 @@ class AddressMigration extends Command
         DB::table('new_Address')->truncate();
 
         foreach ($oldAddresses as $oldAddress) {
+            $company = null;
+
+            if($oldAddress->CompanyId) {
+                $company = DB::table('new_Companies')->where('old_id', $oldAddress->CompanyId)->first();
+            }
+
             DB::table('new_Address')->insert([
                 'Street' => $oldAddress->Street,
                 'City' => $oldAddress->City,
-                'PostalCode' => $oldAddress->PostalCode,
+                'PostalCode' => rtrim(preg_replace('/(\d+)/', '${1} ', str_replace(' ', '', $oldAddress->PostalCode))),
                 'TypeOfAddress' => $oldAddress->TypeOfAddress,
                 'Location' => $oldAddress->Location,
-                'CompanyId' => $oldAddress->CompanyId,
+                'CompanyId' => $company?->Id,
                 'LocationName' => $oldAddress->Street . ' ' . $oldAddress->PostalCode . ' ' . $oldAddress->City,
                 'old_id' => $oldAddress->Id
             ]);

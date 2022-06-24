@@ -37,15 +37,44 @@ class ContactMigration extends Command
 
             if($oldContact->CompanyId) {
                 $company = DB::table('new_Companies')->where('old_id', $oldContact->CompanyId)->first();
-            }
 
-            DB::table('new_Contacts')->insert([
-                'Name' => $oldContact->Name,
-                'Email' => $oldContact->Email,
-                'Phone' => $oldContact->PhoneNumber,
-                'CompanyId' => $company?->Id,
-                'old_id' => $oldContact->Id
-            ]);
+                if($company?->Id) {
+                    $number = $oldContact->PhoneNumber;
+                    $number = str_replace([' ', '-', '(', ')'], ['', '', '', ''], $number);
+
+                    if(str_starts_with($number, '003')) {
+                        $number = substr_replace($number, '+3', 0, 3);
+                    }
+
+                    if(str_starts_with($number, '0')) {
+                        $number = substr_replace($number, '+31', 0, 1);
+                    }
+
+                    if(str_starts_with($number, '6') && strlen($number) === 9) {
+                        $number = substr_replace($number, '+31', 0, 0);
+                    }
+
+                    if(str_starts_with($number, '31') && strlen($number) === 11) {
+                        $number = substr_replace($number, '+', 0, 0);
+                    }
+
+                    if(str_starts_with($number, '+3106')) {
+                        $number = str_replace('+3106', '+316', $number);
+                    }
+
+                    if (str_contains($number, '@')) {
+                        $number = '';
+                    }
+
+                    DB::table('new_Contacts')->insert([
+                        'Name' => $oldContact->Name,
+                        'Email' => $oldContact->Email,
+                        'Phone' => $number,
+                        'CompanyId' => $company?->Id,
+                        'old_id' => $oldContact->Id
+                    ]);
+                }
+            }
         }
     }
 }
