@@ -35,6 +35,8 @@ class SpecializationMigration extends Command
         foreach ($oldSpecializations as $oldSpecialization) {
             DB::table('new_Specializations')->insert([
                 'Name' => $oldSpecialization->Name,
+                'Active' => true,
+                'Used' => true,
                 'CreatedAt' => $oldSpecialization->CreatedAt,
                 'UpdatedAt' => $oldSpecialization->UpdatedAt,
                 'old_id' => $oldSpecialization->Id

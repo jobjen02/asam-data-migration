@@ -32,24 +32,24 @@ class FileMigration extends Command
         DB::table('new_Media')->truncate();
         DB::table('new_MediaCarouselItem')->truncate();
 
-        DB::table('new_Files')->insert([
-            'Id' => 1,
-            'Name' => 'Fontys logo',
-            'Path' => 'https://www.foodtechbrainport.com/wp-content/uploads/2021/08/Fontys-Logo.svg.png',
-            'UploadDateTime' => now(),
-        ]);
-
-        DB::table('new_Media')->insert([
-            'Id' => 1,
-            'FileId' => '1',
-            'EmbeddedMedia' => null,
-        ]);
-
         $companies = Db::table('new_Companies')->get();
 
-        foreach ($companies as $company) {
+        foreach ($companies as $i => $company) {
+            DB::table('new_Files')->insert([
+                'Id' => $i + 1,
+                'Name' => 'Fontys-Logo.svg.png',
+                'Path' => 'https://www.foodtechbrainport.com/wp-content/uploads/2021/08',
+                'UploadDateTime' => now(),
+            ]);
+
+            DB::table('new_Media')->insert([
+                'Id' => $i + 1,
+                'FileId' => $i + 1,
+                'EmbeddedMedia' => null,
+            ]);
+
             DB::table('new_MediaCarouselItem')->insert([
-                'MediaId' => 1,
+                'MediaId' => $i + 1,
                 'Position' => 0,
                 'CompanyId' => $company->Id,
             ]);
